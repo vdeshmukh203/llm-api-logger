@@ -461,5 +461,11 @@ def main():
             print(f"Exported {logger.count()} entries to {args.output} (JSONL)")
 
 
+# Backwards-compatible aliases
+LogRecord = LogEntry
+JSONLBackend = LLMLogger
+_detect_provider = _extract_provider
+
+
 if __name__ == "__main__":
     main()
