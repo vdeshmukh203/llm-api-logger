@@ -465,6 +465,7 @@ def main():
 LogRecord = LogEntry
 JSONLBackend = LLMLogger
 SQLiteBackend = LLMLogger
+StdoutBackend = LLMLogger
 _detect_provider = _extract_provider
 
 
