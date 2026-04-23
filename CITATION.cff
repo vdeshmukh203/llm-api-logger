@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "llm-api-logger"
+abstract: "Transparent HTTP proxy that logs all LLM API traffic with SHA-256 tamper-evident provenance"
+authors:
+  - family-names: Deshmukh
+    given-names: V.A.
+    alias: vdeshmukh203
+version: 0.1.0
+date-released: "2025-01-01"
+url: "https://github.com/vdeshmukh203/llm-api-logger"
+license: MIT
