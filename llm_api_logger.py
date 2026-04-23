@@ -464,6 +464,7 @@ def main():
 # Backwards-compatible aliases
 LogRecord = LogEntry
 JSONLBackend = LLMLogger
+SQLiteBackend = LLMLogger
 _detect_provider = _extract_provider
 
 
