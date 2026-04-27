@@ -1,17 +1,39 @@
 """
-llm_api_logger: Transparent HTTP proxy for logging LLM API traffic.
+llm_api_logger: re-export of the public API from the root module.
 
-Runs as a local HTTP proxy that intercepts requests to LLM provider APIs
-(OpenAI, Anthropic, Cohere, etc.), logs request/response pairs with
-SHA-256-linked provenance to JSONL files, and forwards traffic transparently.
-Enables passive capture of LLM interactions without modifying application code.
+The installable package is the single-file ``llm_api_logger.py`` module in the
+project root (configured via ``py-modules`` in pyproject.toml).  This package
+stub re-exports the same symbols so that both ``import llm_api_logger`` and
+``from llm_api_logger import …`` work regardless of how the source tree is laid
+out on sys.path.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Vaibhav Deshmukh"
 __license__ = "MIT"
 
-from .proxy import LLMAPIProxy
-from .store import LogStore
+from llm_api_logger import (  # noqa: F401
+    COST_TABLE,
+    LogEntry,
+    LLMLogger,
+    estimate_cost,
+    patch_urllib,
+    unpatch_urllib,
+    session,
+    _load_jsonl_into,
+    _extract_provider,
+    _extract_model,
+)
 
-__all__ = ["LLMAPIProxy", "LogStore"]
+__all__ = [
+    "COST_TABLE",
+    "LogEntry",
+    "LLMLogger",
+    "estimate_cost",
+    "patch_urllib",
+    "unpatch_urllib",
+    "session",
+    "_load_jsonl_into",
+    "_extract_provider",
+    "_extract_model",
+]
