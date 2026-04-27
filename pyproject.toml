@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-api-logger"
-version = "0.1.0"
-description = "Middleware HTTP logger for LLM API calls with JSONL and SQLite backends"
+version = "0.2.0"
+description = "Middleware logger for LLM API calls with JSONL/SQLite backends and a GUI viewer"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Vaibhav Deshmukh", email = "vdeshmukh203@gmail.com"}]
@@ -24,4 +24,4 @@ classifiers = [
 llm-api-logger = "llm_api_logger:_cli"
 
 [tool.setuptools]
-py-modules = ["llm_api_logger"]
+py-modules = ["llm_api_logger", "llm_api_logger_gui"]
