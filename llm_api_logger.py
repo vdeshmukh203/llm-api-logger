@@ -22,7 +22,9 @@ from typing import Optional, List, Dict, Any
 from contextlib import contextmanager
 from pathlib import Path
 from urllib import request as urllib_request
+from urllib.response import addinfourl
 from urllib.error import URLError
+from io import BytesIO
 import time
 import uuid
 
@@ -98,7 +100,7 @@ def _extract_model(request_body: Optional[str], response_body: Optional[str]) ->
                 for key in ["model", "modelId", "model_id", "engine"]:
                     if key in data:
                         return str(data[key])
-        except:
+        except Exception:
             pass
     return "unknown"
 
@@ -116,7 +118,7 @@ def _tok(rs: Optional[str]) -> tuple:
             if "usageMetadata" in d:
                 u = d["usageMetadata"]
                 return u.get("promptTokenCount", 0), u.get("candidatesTokenCount", 0)
-    except:
+    except Exception:
         pass
     return 0, 0
 
@@ -321,7 +323,7 @@ def _is_llm(url: str, request_body: Optional[str]) -> bool:
             if isinstance(data, dict):
                 if any(k in data for k in ["model", "engine", "modelId"]):
                     return True
-        except:
+        except Exception:
             pass
     return False
 
@@ -348,9 +350,9 @@ def _patched_urlopen(url, data=None, timeout=None, **kwargs):
         if is_llm:
             response_data = response.read()
             response_body = response_data.decode("utf-8", errors="ignore")
+            saved_headers = response.headers
             response.close()
-            from io import BytesIO
-            response = urllib_request.Response(url=url_str, fp=BytesIO(response_data), headers=response.headers, orig_url=url_str, code=status_code)
+            response = addinfourl(BytesIO(response_data), saved_headers, url_str, status_code)
         if is_llm and _active_logger:
             latency_ms = (time.time() - start_time) * 1000
             entry = LogEntry(url=url_str, method="POST", request_body=request_body, response_body=response_body, status_code=status_code, latency_ms=latency_ms)
@@ -467,6 +469,7 @@ JSONLBackend = LLMLogger
 SQLiteBackend = LLMLogger
 StdoutBackend = LLMLogger
 _detect_provider = _extract_provider
+_cli = main
 
 
 if __name__ == "__main__":
