@@ -1,13 +1,13 @@
 """
-llm_api_logger: Transparent HTTP proxy for logging LLM API traffic.
+llm_api_logger: Python middleware for transparent logging of LLM API calls.
 
-Runs as a local HTTP proxy that intercepts requests to LLM provider APIs
-(OpenAI, Anthropic, Cohere, etc.), logs request/response pairs with
-SHA-256-linked provenance to JSONL files, and forwards traffic transparently.
-Enables passive capture of LLM interactions without modifying application code.
+Intercepts ``urllib.request.urlopen`` to capture all HTTP traffic to LLM
+provider endpoints (OpenAI, Anthropic, Google, Mistral, …) and stores
+structured records—including token counts, latency, and cost estimates—to
+SQLite or JSONL backends without modifying application code.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Vaibhav Deshmukh"
 __license__ = "MIT"
 

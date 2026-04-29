@@ -7,7 +7,7 @@ authors:
   - family-names: Deshmukh
     given-names: V.A.
     alias: vdeshmukh203
-version: 0.1.0
-date-released: "2025-01-01"
+version: 1.0.0
+date-released: "2026-04-29"
 url: "https://github.com/vdeshmukh203/llm-api-logger"
 license: MIT
