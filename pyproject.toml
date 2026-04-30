@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-api-logger"
-version = "0.1.0"
+version = "0.2.0"
 description = "Middleware HTTP logger for LLM API calls with JSONL and SQLite backends"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -21,7 +21,10 @@ classifiers = [
 ]
 
 [project.scripts]
-llm-api-logger = "llm_api_logger:_cli"
+llm-api-logger = "llm_api_logger:main"
 
-[tool.setuptools]
-py-modules = ["llm_api_logger"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
