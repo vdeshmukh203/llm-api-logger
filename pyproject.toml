@@ -16,12 +16,21 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: System :: Logging",
 ]
 
 [project.scripts]
-llm-api-logger = "llm_api_logger:_cli"
+llm-api-logger     = "llm_api_logger:main"
+llm-api-logger-gui = "llm_api_logger_gui:main_gui"
 
 [tool.setuptools]
-py-modules = ["llm_api_logger"]
+py-modules = ["llm_api_logger", "llm_api_logger_gui"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
