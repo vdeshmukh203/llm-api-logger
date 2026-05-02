@@ -21,7 +21,8 @@ classifiers = [
 ]
 
 [project.scripts]
-llm-api-logger = "llm_api_logger:_cli"
+llm-api-logger = "llm_api_logger:main"
+llm-api-logger-gui = "llm_api_logger_gui:main"
 
 [tool.setuptools]
-py-modules = ["llm_api_logger"]
+py-modules = ["llm_api_logger", "llm_api_logger_gui"]
