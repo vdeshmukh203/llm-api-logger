@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llm-api-logger"
 version = "0.1.0"
-description = "Middleware HTTP logger for LLM API calls with JSONL and SQLite backends"
+description = "Middleware library for transparent logging and cost tracking of LLM API calls"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Vaibhav Deshmukh", email = "vdeshmukh203@gmail.com"}]
@@ -20,8 +20,12 @@ classifiers = [
     "Topic :: System :: Logging",
 ]
 
+[project.optional-dependencies]
+gui = ["flask>=2.0"]
+
 [project.scripts]
-llm-api-logger = "llm_api_logger:_cli"
+llm-api-logger = "llm_api_logger:main"
+llm-api-logger-gui = "gui:main"
 
 [tool.setuptools]
-py-modules = ["llm_api_logger"]
+py-modules = ["llm_api_logger", "gui"]

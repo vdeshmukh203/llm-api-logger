@@ -1,12 +1,12 @@
 ---
-title: 'llm-api-logger: An HTTP proxy for transparent logging of LLM API traffic with structured provenance records'
+title: 'llm-api-logger: A middleware library for transparent logging and cost tracking of LLM API calls'
 tags:
   - Python
   - LLM
   - API
   - logging
-  - HTTP
   - reproducibility
+  - cost tracking
 authors:
   - name: Vaibhav Deshmukh
     orcid: 0000-0001-6745-7062
@@ -16,15 +16,20 @@ affiliations:
     index: 1
 date: 23 April 2026
 bibliography: paper.bib
+
 ---
 
 # Summary
 
-`llm-api-logger` is a lightweight local HTTP proxy that transparently intercepts and logs all traffic between client applications and LLM API endpoints (OpenAI, Anthropic, Google, and any OpenAI-compatible server). By routing requests through the proxy — a one-line environment variable change — researchers capture complete HTTP request and response payloads including headers, request bodies, response streaming chunks, latency breakdown, and token usage statistics. Each interaction is stored as a structured JSONL record with a SHA-256 content hash [@nist2015sha], enabling provenance verification and exact replay.
+`llm-api-logger` is a Python middleware library that transparently intercepts and logs API interactions with large language model (LLM) providers such as OpenAI, Anthropic, Google, Mistral, Cohere, and Together AI.  The library operates by monkey-patching `urllib.request.urlopen`, the underlying HTTP function used by many Python HTTP libraries, so that every outbound LLM API request and its corresponding response are captured without any modification to application code.
+
+Each captured interaction is stored as a structured `LogEntry` record containing the full request and response JSON bodies, HTTP status code, wall-clock latency, automatically extracted token counts, and an estimated cost computed from a built-in pricing table covering more than 30 models.  Entries are persisted to either an SQLite database or a newline-delimited JSON (JSONL) file.  A context manager API enables scoped logging sessions, and a command-line interface (CLI) supports querying, summarising, and exporting log data.  An optional Flask-based web dashboard provides an interactive view of summary statistics and individual log entries.
 
 # Statement of Need
 
-Reproducibility in LLM-based research requires capturing not just the final model output, but the exact API request context: model version specified in the request header, temperature and sampling parameters, system prompt, tool definitions, and any provider-side modifications such as content filtering [@gao2023reproducibility]. Application-level logging frameworks cannot capture provider-side transformations or accurate latency breakdowns. `llm-api-logger` operates at the HTTP layer, below any SDK abstraction, and thus captures the ground truth of what was sent and received. The proxy introduces negligible latency (< 1 ms local overhead) and requires no changes to application code beyond setting the `HTTPS_PROXY` environment variable [@stodden2016enhancing].
+Reproducibility in LLM-based research requires capturing not just the final model output but the complete API request context: the exact model version, temperature and sampling parameters, system prompt, and tool definitions [@gao2023reproducibility].  Without systematic logging, cost and token usage can be difficult to audit, and exact replication of experiments becomes infeasible [@stodden2016enhancing].
+
+`llm-api-logger` addresses this need by inserting a logging layer below SDK abstractions.  Because it intercepts at the `urllib` level, it captures the actual bytes exchanged with the provider rather than relying on SDK-level instrumentation, which may omit retries, provider-side modifications, or intermediary transformations.  The library adds negligible overhead (a single in-process function call and a lightweight database write per request) and requires no changes to application code.  The structured storage format enables downstream cost analysis, reproducibility auditing, and integration with data analysis workflows.
 
 # Acknowledgements
 
