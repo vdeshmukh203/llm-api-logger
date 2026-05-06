@@ -1,13 +1,14 @@
 """
-llm_api_logger: Transparent HTTP proxy for logging LLM API traffic.
+llm_api_logger package – re-exports the public API.
 
-Runs as a local HTTP proxy that intercepts requests to LLM provider APIs
-(OpenAI, Anthropic, Cohere, etc.), logs request/response pairs with
-SHA-256-linked provenance to JSONL files, and forwards traffic transparently.
-Enables passive capture of LLM interactions without modifying application code.
+The authoritative implementation lives in the top-level ``llm_api_logger``
+module (flat-module layout, installed via ``pyproject.toml``).  This package
+shim exists so that the source tree can be imported as a package during
+development and so that sub-module paths like
+``llm_api_logger.proxy.LLMAPIProxy`` remain accessible.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Vaibhav Deshmukh"
 __license__ = "MIT"
 
