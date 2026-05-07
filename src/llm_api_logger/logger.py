@@ -579,7 +579,7 @@ def main() -> None:
 def _gui_main() -> None:
     """Launch the Tkinter dashboard."""
     try:
-        from llm_api_logger.gui import main as gui_main
+        from .gui import main as gui_main
     except ImportError:
         print("GUI not available. Install the package with: pip install -e .", file=sys.stderr)
         sys.exit(1)

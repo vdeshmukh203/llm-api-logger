@@ -4,24 +4,49 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-api-logger"
-version = "0.1.0"
-description = "Middleware HTTP logger for LLM API calls with JSONL and SQLite backends"
+version = "1.0.0"
+description = "Transparent HTTP proxy for logging LLM API calls with JSONL and SQLite backends"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Vaibhav Deshmukh", email = "vdeshmukh203@gmail.com"}]
 requires-python = ">=3.8"
-keywords = ["llm", "logging", "openai", "anthropic", "middleware", "cost", "reproducibility"]
+keywords = [
+    "llm", "logging", "openai", "anthropic", "middleware",
+    "cost", "reproducibility", "proxy",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: System :: Logging",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
 ]
 
-[project.scripts]
-llm-api-logger = "llm_api_logger:_cli"
+# No external runtime dependencies — stdlib only.
+dependencies = []
 
-[tool.setuptools]
-py-modules = ["llm_api_logger"]
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov"]
+
+[project.scripts]
+llm-api-logger     = "llm_api_logger.logger:main"
+llm-api-logger-gui = "llm_api_logger.logger:_gui_main"
+
+[project.urls]
+Homepage   = "https://github.com/vdeshmukh203/llm-api-logger"
+Repository = "https://github.com/vdeshmukh203/llm-api-logger"
+Issues     = "https://github.com/vdeshmukh203/llm-api-logger/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths  = ["tests"]
+pythonpath = ["src"]
