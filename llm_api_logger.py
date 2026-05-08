@@ -16,17 +16,19 @@ import csv
 import sys
 import argparse
 import logging
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict, field, fields
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from io import BytesIO
+from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
 from pathlib import Path
 from urllib import request as urllib_request
+from urllib.response import addinfourl
 from urllib.error import URLError
 import time
 import uuid
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 
 COST_TABLE = {
     "gpt-4o": {"input": 5.00, "output": 15.00},
@@ -98,13 +100,17 @@ def _extract_model(request_body: Optional[str], response_body: Optional[str]) ->
                 for key in ["model", "modelId", "model_id", "engine"]:
                     if key in data:
                         return str(data[key])
-        except:
+        except Exception:
             pass
     return "unknown"
 
 
-def _tok(rs: Optional[str]) -> tuple:
-    """Extract token counts from response body."""
+def _tok(rs: Optional[str]) -> Tuple[int, int]:
+    """Extract (tokens_in, tokens_out) counts from a JSON response body.
+
+    Handles OpenAI (prompt_tokens/completion_tokens), Anthropic
+    (input_tokens/output_tokens), and Google (usageMetadata) formats.
+    """
     if not rs:
         return 0, 0
     try:
@@ -112,11 +118,14 @@ def _tok(rs: Optional[str]) -> tuple:
         if isinstance(d, dict):
             if "usage" in d:
                 u = d["usage"]
-                return u.get("prompt_tokens", 0), u.get("completion_tokens", 0)
+                # OpenAI format
+                tokens_in = u.get("prompt_tokens") or u.get("input_tokens", 0)
+                tokens_out = u.get("completion_tokens") or u.get("output_tokens", 0)
+                return int(tokens_in), int(tokens_out)
             if "usageMetadata" in d:
                 u = d["usageMetadata"]
                 return u.get("promptTokenCount", 0), u.get("candidatesTokenCount", 0)
-    except:
+    except Exception:
         pass
     return 0, 0
 
@@ -163,8 +172,9 @@ class LogEntry:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "LogEntry":
-        """Create LogEntry from dictionary."""
-        return cls(**data)
+        """Create LogEntry from dictionary, ignoring unknown keys."""
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in data.items() if k in known})
 
 
 class LLMLogger:
@@ -321,7 +331,7 @@ def _is_llm(url: str, request_body: Optional[str]) -> bool:
             if isinstance(data, dict):
                 if any(k in data for k in ["model", "engine", "modelId"]):
                     return True
-        except:
+        except Exception:
             pass
     return False
 
@@ -348,18 +358,23 @@ def _patched_urlopen(url, data=None, timeout=None, **kwargs):
         if is_llm:
             response_data = response.read()
             response_body = response_data.decode("utf-8", errors="ignore")
+            headers = response.headers
             response.close()
-            from io import BytesIO
-            response = urllib_request.Response(url=url_str, fp=BytesIO(response_data), headers=response.headers, orig_url=url_str, code=status_code)
+            # Reconstruct a readable response object so callers can still .read() it
+            response = addinfourl(BytesIO(response_data), headers, url_str, status_code)
         if is_llm and _active_logger:
             latency_ms = (time.time() - start_time) * 1000
-            entry = LogEntry(url=url_str, method="POST", request_body=request_body, response_body=response_body, status_code=status_code, latency_ms=latency_ms)
+            entry = LogEntry(url=url_str, method="POST", request_body=request_body,
+                             response_body=response_body, status_code=status_code,
+                             latency_ms=latency_ms)
             _active_logger.record(entry)
         return response
     except Exception as e:
         if is_llm and _active_logger:
             latency_ms = (time.time() - start_time) * 1000
-            entry = LogEntry(url=url_str, method="POST", request_body=request_body, response_body=response_body, status_code=status_code, latency_ms=latency_ms, error=str(e))
+            entry = LogEntry(url=url_str, method="POST", request_body=request_body,
+                             response_body=response_body, status_code=status_code,
+                             latency_ms=latency_ms, error=str(e))
             _active_logger.record(entry)
         raise
 
@@ -427,7 +442,7 @@ def main():
                         data = json.loads(line)
                         entry = LogEntry.from_dict(data)
                         logger.entries.append(entry)
-                    except:
+                    except Exception:
                         pass
     if args.command == "summary":
         summary = logger.summary()
@@ -467,6 +482,7 @@ JSONLBackend = LLMLogger
 SQLiteBackend = LLMLogger
 StdoutBackend = LLMLogger
 _detect_provider = _extract_provider
+_cli = main  # entry-point alias used by pyproject.toml
 
 
 if __name__ == "__main__":
